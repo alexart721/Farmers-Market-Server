@@ -12,9 +12,10 @@ mongoose.connect(url, {
     (err) => {
         if (err) {
             console.log(`Database is not connected error:${err}`)
-        } else {
-            console.log(`Database is connected @ port: ${DB_PORT}`)
-        }
+        } 
+        // else {
+        //     console.log(`Database is connected @ port: ${DB_PORT}`)
+        // }
     }
 );
 
