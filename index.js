@@ -5,11 +5,6 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const router = require('./router');
 
-// const corsConfig = {
-//     origin: 'http://localhost:3000',
-//     credentials: true,
-// }
-
 app.use(cors());
 app.use(express.json());
 app.use(router)

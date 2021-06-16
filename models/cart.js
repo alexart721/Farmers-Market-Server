@@ -1,6 +1,6 @@
 const mongoose = require('../db');
 
-const productSchema = mongoose.Schema(
+const cartSchema = mongoose.Schema(
     {
         firstName: {
             type: String,
@@ -42,8 +42,12 @@ const productSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        userEmail: {
+            type: String,
+            required: true,
+        },
     }, 
     {timestamps: true},
 );
 
-module.exports = mongoose.model('ProductTable',productSchema);
+module.exports = mongoose.model('CartTable',cartSchema);
