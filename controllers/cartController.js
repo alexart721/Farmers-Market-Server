@@ -29,7 +29,7 @@ exports.getCartProducts = async (req, res) => {
 
 exports.removeFromCart = async (req,res) => {
     try {
-        const removeProduct = await CartTatble.findOneAndDelete(req.params['id']);
+        const removeProduct = await CartTatble.findOneAndDelete({_id:req.params['id']});
         if (!removeProduct) return res.sendStatus(404);
         return res.sendStatus(203)
     } catch (error) {
