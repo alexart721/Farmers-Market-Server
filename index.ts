@@ -1,26 +1,8 @@
-import express from 'express';
-import cors from 'cors';
 import bootDB from './db';
-import router from './router';
+import bootServer from './server';
 
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
+const connectionString = String(process.env.DB_BASE_URL);
 
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-app.use(router);
-
-app.get('*', (_, res) => {
-  res.status(404).send('Page not found');
-});
-app.post('*', (_, res) => {
-  res.status(404).send('Page not found');
-});
-
-(async () => {
-  await bootDB();
-  app.listen(PORT, () => {
-    console.log(`Server is running on port:${PORT}`);
-  });
-})();
+bootDB(connectionString);
+bootServer(PORT);

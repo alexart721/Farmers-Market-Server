@@ -1,15 +1,14 @@
-import { connect } from 'mongoose';
+import { connect, Mongoose } from 'mongoose';
 
-const { DB_BASE_URL = '' } = process.env;
-
-const bootDB = async (): Promise<void> => {
+const bootDB = async (connectionString: string): Promise<Mongoose | undefined> => {
   try {
-    await connect(DB_BASE_URL, {
+    const connection = await connect(connectionString, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useFindAndModify: false,
     });
     console.log('Successfully connected to the database.');
+    return connection;
   } catch (err) {
     console.log('[Database connection error]:\n', err);
   }
