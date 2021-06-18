@@ -1,22 +1,18 @@
-import mongoose from 'mongoose';
-// const DB_PORT = process.env.DB_PORT || 27017;
-// const DB_NAME = process.env.DB_NAME || 'farmersMarket';
-const { DB_BASE_URL } = process.env;
+import { connect } from 'mongoose';
 
-const url = `${DB_BASE_URL}`;
+const { DB_BASE_URL = '' } = process.env;
 
-mongoose.connect(url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-},
-(err) => {
-  if (err) {
-    console.log(`Database is not connected error:${err}`);
+const bootDB = async (): Promise<void> => {
+  try {
+    await connect(DB_BASE_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    });
+    console.log('Successfully connected to the database.');
+  } catch (err) {
+    console.log('[Database connection error]:\n', err);
   }
-  // else {
-  //     console.log(`Database is connected @ port: ${DB_PORT}`)
-  // }
-});
+};
 
-export default mongoose;
+export default bootDB;

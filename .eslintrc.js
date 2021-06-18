@@ -31,6 +31,7 @@ module.exports = {
     'jest/prefer-to-have-length': 'warn',
     'jest/valid-expect': 'error',
     'consistent-return': 0,
+    'no-console': 0,
   },
   overrides: [ // Overrides are rule for specific file extensions
     {

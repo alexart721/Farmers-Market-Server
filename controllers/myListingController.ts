@@ -1,22 +1,26 @@
-const ProductTable = require('../models/product');
-const CartTatble = require('../models/cart');
+import { Request, Response } from 'express';
+import ProductTable from '../models/product';
+import CartTatble from '../models/cart';
+import { notFound, printOperation, serverError } from './handlers';
 
-exports.getMyProducts = async (req, res) => {
+export const getMyProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const myProducts = await ProductTable.find({ email: req.params.email });
-    res.status(200).send(myProducts);
+    res.status(200).json(myProducts);
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-exports.removeMyListing = async (req, res) => {
+export const removeMyListing = async (req: Request, res: Response): Promise<void> => {
   try {
     const removeListing = await ProductTable.findOneAndDelete({ _id: req.params.id });
     const removeListingFromCart = await CartTatble.findOneAndDelete({ _id: req.params.id });
-    if (!removeListing || !removeListingFromCart) return res.sendStatus(404);
-    return res.sendStatus(203);
+    if (!removeListing || !removeListingFromCart) return notFound(res);
+    res.status(203).json({ message: 'OK' });
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };

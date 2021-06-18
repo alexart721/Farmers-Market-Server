@@ -1,28 +1,33 @@
-const ProductTable = require('../models/product');
+import { Request, Response } from 'express';
+import ProductTable from '../models/product';
+import { printOperation, serverError } from './handlers';
 
-exports.getProducts = async (req, res) => {
+export const getProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const products = await ProductTable.find();
-    res.status(200).send(products);
+    res.status(200).json(products);
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-exports.getProductById = async (req, res) => {
+export const getProductById = async (req: Request, res: Response): Promise<void> => {
   try {
     const product = await ProductTable.findById(req.params.id);
-    res.status(200).send(product);
+    res.status(200).json(product);
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-exports.createProduct = async (req, res) => {
+export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const addProduct = await ProductTable.create(req.body);
-    res.status(201).send(addProduct);
+    res.status(201).json(addProduct);
   } catch (error) {
-    res.status(400).send({ error, message: 'Could not create product' });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };

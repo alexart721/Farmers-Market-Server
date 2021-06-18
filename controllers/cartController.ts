@@ -1,39 +1,48 @@
-import CartTatble from '../models/cart';
-import ProductTable from '../models/product';
+import { Request, Response } from 'express';
+import Cart from '../models/cart';
+import Product from '../models/product';
+import {
+  conflict,
+  notFound,
+  printOperation,
+  serverError,
+} from './handlers';
 
-// eslint-disable-next-line consistent-return
-export const addProductToCart = async (req, res): Promise<void> => {
+export const addProductToCart = async (req: Request, res: Response): Promise<void> => {
   try {
-    const product = await ProductTable.findById(req.params.id);
-    const productInCart = await CartTatble.findById(req.params.id);
+    const productInCart = await Cart.findById(req.params.id);
     if (!productInCart) {
+      const product = await Product.findById(req.params.id);
       const userEmail = req.params.email;
-      const newProduct = { ...product._doc, userEmail };
-      const addProductCart = await CartTatble.create(newProduct);
-      res.status(201).send(addProductCart);
+      const newProduct = { ...product?.toObject(), userEmail };
+      const addProductCart = await Cart.create(newProduct);
+      res.status(201).json(addProductCart);
     } else {
-      return res.status(409).send({ error: '409', message: 'Product is already added to cart' });
+      return conflict(res, 'Product is already added to cart');
     }
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-export const getCartProducts = async (req, res) => {
+export const getCartProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const allCartProducts = await CartTatble.find({ userEmail: req.params.email });
-    res.status(200).send(allCartProducts);
+    const allCartProducts = await Cart.find({ userEmail: req.params.email });
+    res.status(200).json(allCartProducts);
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-export const removeFromCart = async (req, res) => {
+export const removeFromCart = async (req: Request, res: Response): Promise<void> => {
   try {
-    const removeProduct = await CartTatble.findOneAndDelete({ _id: req.params.id });
-    if (!removeProduct) return res.sendStatus(404);
-    return res.sendStatus(203);
+    const removeProduct = await Cart.findOneAndDelete({ _id: req.params.id });
+    if (!removeProduct) return notFound(res);
+    res.status(203).json({ message: 'OK' });
   } catch (error) {
-    res.status(404).send({ error });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };

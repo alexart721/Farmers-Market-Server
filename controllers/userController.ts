@@ -1,58 +1,68 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const Usertable = require('../models/user');
+import { Request, Response } from 'express';
+import { Document } from 'mongoose';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import Usertable, { UserEntry } from '../models/user';
+import {
+  badRequest,
+  conflict,
+  forbidden,
+  notFound,
+  printOperation,
+  serverError,
+} from './handlers';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'This is first trial authentication';
 
-const create = async (req, res) => {
+export const create = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
-  const user = await Usertable.findOne({ email });
-  if (user) {
-    return res.status(409).send({ error: '409', message: 'User already exists' });
-  }
+  if (password === '') return badRequest(res, 'Password cannot be empty');
   try {
-    if (password === '') throw new Error();
+    const user = await Usertable.findOne({ email });
+    if (user) return conflict(res, 'User already exists');
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = await Usertable.create({ ...req.body, password: hashPassword });
     const { _id } = newUser;
     const accessToken = jwt.sign({ _id }, SECRET_KEY);
-    res.status(201).send({ accessToken });
+    res.status(201).json({ _id, accessToken });
   } catch (error) {
-    res.status(400).send({ error, message: 'Could not create user' });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
   try {
     const user = await Usertable.findOne({ email });
+    if (!user) return notFound(res);
     const validatedPassword = await bcrypt.compare(password, user.password);
-    if (!validatedPassword) throw new Error();
+    if (!validatedPassword) return forbidden(res, 'Incorrect login credentials');
     const accessToken = jwt.sign({ _id: user._id }, SECRET_KEY);
-    res.status(200).send({ accessToken });
+    res.status(200).json({ _id: user._id, accessToken });
   } catch (error) {
-    res.status(401).send({ error, message: 'Username or password is incorrect' });
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
 };
 
-const profile = async (req, res) => {
+export const profile = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
-      _id, firstName, lastName, email,
-    } = req.user;
-    const user = {
-      _id, firstName, lastName, email,
-    };
-    res.status(200).send(user);
-  } catch {
-    res.status(404).send({ error, message: 'User not found' });
+      _id,
+      lastName,
+      firstName,
+      email,
+    } = res.locals.user as Omit<UserEntry & Document<string>, 'password'>;
+    if (!_id) return forbidden(res);
+    res.status(200).json({
+      _id,
+      lastName,
+      firstName,
+      email,
+    });
+  } catch (error) {
+    console.error(printOperation(req), `\n[Error]: ${error}`);
+    return serverError(res);
   }
-};
-
-const logout = (req, res) => {
-
-};
-
-module.exports = {
-  create, login, profile, logout,
 };

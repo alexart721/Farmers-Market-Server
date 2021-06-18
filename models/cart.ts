@@ -1,6 +1,20 @@
-const mongoose = require('../db');
+import { Schema, Model, model } from 'mongoose';
 
-const cartSchema = mongoose.Schema(
+export interface CartEntry {
+  firstName: string;
+  lastName: string;
+  email: string;
+  productName: string;
+  productDescription: string;
+  price: number;
+  quantity: number;
+  imageUrl: string;
+  city: string;
+  province: string;
+  userEmail: string;
+}
+
+const cartSchema = new Schema<CartEntry>(
   {
     firstName: {
       type: String,
@@ -50,4 +64,6 @@ const cartSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model('CartTable', cartSchema);
+const Cart: Model<CartEntry> = model('Cart', cartSchema);
+
+export default Cart;
