@@ -25,6 +25,7 @@ module.exports = {
     'no-shadow': 0, // We prefer eslint not to check variable shadowing as it's something @typescript-eslint will do (next line)
     '@typescript-eslint/no-shadow': ['error'],
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }], // Here we let ourselves use `_` as unused function parameter
+    'import/no-extraneous-dependencies': 0,
     'jest/no-disabled-tests': 'warn',
     'jest/no-focused-tests': 'error',
     'jest/no-identical-title': 'error',
